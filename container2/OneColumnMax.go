@@ -5,15 +5,15 @@ import (
 	"fyne.io/fyne/v2/container"
 )
 
-type oneColumnMax struct {
+type OneColumnMax struct {
 	MaxIndex int
 }
 
 func NewOneColumnMax(index int, objects ...fyne.CanvasObject) *fyne.Container {
-	return container.New(&oneColumnMax{MaxIndex: index}, objects...)
+	return container.New(&OneColumnMax{MaxIndex: index}, objects...)
 }
 
-func (c *oneColumnMax) MinSize(objects []fyne.CanvasObject) fyne.Size {
+func (c *OneColumnMax) MinSize(objects []fyne.CanvasObject) fyne.Size {
 	width, height := float32(0), float32(0)
 
 	for _, o := range objects {
@@ -27,7 +27,7 @@ func (c *oneColumnMax) MinSize(objects []fyne.CanvasObject) fyne.Size {
 	return fyne.NewSize(width, height)
 }
 
-func (c *oneColumnMax) Layout(objects []fyne.CanvasObject, containerSize fyne.Size) {
+func (c *OneColumnMax) Layout(objects []fyne.CanvasObject, containerSize fyne.Size) {
 	x := float32(0)
 
 	for i, o := range objects {

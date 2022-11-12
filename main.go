@@ -52,12 +52,7 @@ func newTitleLayout() *fyne.Container {
 }
 
 func newGameLayout(width int, height int, bombs int) *fyne.Container {
-	g := container.NewGridWithColumns(width)
-	for i := 0; i < (width * height); i++ {
-		g.Add(widget2.NewMSCell())
-	}
-
-	return g
+	return container2.NewMSTable(width, height, bombs)
 }
 
 func main() {

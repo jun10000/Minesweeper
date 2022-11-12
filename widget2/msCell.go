@@ -25,6 +25,7 @@ type MSCell struct {
 func NewMSCell() *MSCell {
 	c := &MSCell {}
 	c.ExtendBaseWidget(c)
+	c.Text = " "
 	return c
 }
 
@@ -33,13 +34,10 @@ func (c *MSCell) Tapped(e *fyne.PointEvent) {
 		return
 	}
 
-	println("左クリック押下")
 	if c.HasBomb {
 		c.Button.Text = "x"
 	} else {
-		if c.NearBombs > 0 {
-			c.Button.Text = fmt.Sprint(c.NearBombs)
-		}
+		c.Button.Text = fmt.Sprint(c.NearBombs)
 	}
 
 	c.IsOpened = true
@@ -51,14 +49,16 @@ func (c *MSCell) TappedSecondary(e *fyne.PointEvent) {
 		return
 	}
 
-	println("右クリック押下")
 	switch c.MarkState {
 	case MSCellMarkStatesNone:
 		c.MarkState = MSCellMarkStatesBomb
+		c.Button.Text = "B"
 	case MSCellMarkStatesBomb:
 		c.MarkState = MSCellMarkStatesQuestion
+		c.Button.Text = "?"
 	case MSCellMarkStatesQuestion:
 		c.MarkState = MSCellMarkStatesNone
+		c.Button.Text = " "
 	}
 
 	c.Refresh()
