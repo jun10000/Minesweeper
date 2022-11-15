@@ -52,7 +52,7 @@ func newTitleLayout() *fyne.Container {
 }
 
 func newGameLayout(width int, height int, bombs int) *fyne.Container {
-	return container2.NewMSTable(width, height, bombs)
+	return widget2.NewMSTable(width, height, bombs)
 }
 
 func main() {
