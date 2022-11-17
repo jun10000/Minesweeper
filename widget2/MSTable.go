@@ -1,6 +1,8 @@
 package widget2
 
 import (
+	"jun10000.github.io/minesweeper/utility"
+
 	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -48,22 +50,33 @@ func (t *MSTable) Layout(objects []fyne.CanvasObject, containerSize fyne.Size) {
 	o.Move(fyne.NewPos(0, 0))
 }
 
-func (t *MSTable) Init() {
-	// Writing...
-	for i, c := range *t.Cells {
+func (t *MSTable) Init(exceptCell *MSCell) {
+	bombArray := utility.GetRandBinaryArray(t.Width * t.Height - 1, t.Bombs)
+	currentBombIndex := 0
+	for _, c := range *t.Cells {
+		if c == exceptCell {
+			continue
+		}
 		cell := c.(*MSCell)
-		cell.Button.Text = fmt.Sprint(i)
-		cell.Refresh()
+		cell.HasBomb = bombArray[currentBombIndex]
+		currentBombIndex++
 	}
+
+	// cell.NearBombs = ???
+	// ToDo: Sum around 8 cell's bombs
+	//     Get around 8 cell's index
+	//         Set index into all cells on initializing cells
+
+	t.IsInit = true
 }
 
 //++++++++++++++++++++++++++++++
 // MSTable Callback Methods
 //++++++++++++++++++++++++++++++
 
-func (t *MSTable) CellOpened(c *MSCell) {
+func (t *MSTable) OnCellOpen(c *MSCell) {
 	if !t.IsInit {
-		t.Init()
+		t.Init(c)
 	}
 }
 
@@ -84,11 +97,11 @@ type MSCell struct {
 	IsOpened bool
 	MarkState MSCellMarkStates
 
-	HasBomb bool
-	NearBombs int
 	PosX int
 	PosY int
 	Parent *MSTable
+	HasBomb bool
+	NearBombs int
 }
 
 func NewMSCell(parent *MSTable) *MSCell {
@@ -110,7 +123,7 @@ func (c *MSCell) Tapped(e *fyne.PointEvent) {
 	}
 
 	c.IsOpened = true
-	c.Parent.CellOpened(c)
+	c.Parent.OnCellOpen(c)
 	c.Refresh()
 }
 
