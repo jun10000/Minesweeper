@@ -5,6 +5,11 @@ import (
 	"math/rand"
 )
 
+type Position struct {
+	X int
+	Y int
+}
+
 func GetRandBinaryArray(length int, trueCount int) []bool {
 	s := rand.NewSource(time.Now().UnixNano())
 	r := rand.New(s)

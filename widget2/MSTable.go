@@ -26,7 +26,7 @@ func NewMSTable(width int, height int, bombs int) *fyne.Container {
 	t := &MSTable{Width: width, Height: height, Bombs: bombs, Cells: &c.Objects}
 
 	for i := 0; i < (width * height); i++ {
-		c.Add(NewMSCell(t))
+		c.Add(NewMSCell(t, i))
 	}
 
 	return container.New(t, c)
@@ -62,11 +62,6 @@ func (t *MSTable) Init(exceptCell *MSCell) {
 		currentBombIndex++
 	}
 
-	// cell.NearBombs = ???
-	// ToDo: Sum around 8 cell's bombs
-	//     Get around 8 cell's index
-	//         Set index into all cells on initializing cells
-
 	t.IsInit = true
 }
 
@@ -78,6 +73,8 @@ func (t *MSTable) OnCellOpen(c *MSCell) {
 	if !t.IsInit {
 		t.Init(c)
 	}
+
+	// ToDo: Make goal judgement (Death or Alive)
 }
 
 //++++++++++++++++++++++++++++++
@@ -93,22 +90,56 @@ const (
 
 type MSCell struct {
 	widget.Button
+	
+	Parent *MSTable
+	Index int
+	HasBomb bool
 
 	IsOpened bool
 	MarkState MSCellMarkStates
-
-	PosX int
-	PosY int
-	Parent *MSTable
-	HasBomb bool
-	NearBombs int
 }
 
-func NewMSCell(parent *MSTable) *MSCell {
-	c := &MSCell {Parent: parent}
+func NewMSCell(parent *MSTable, index int) *MSCell {
+	c := &MSCell {Parent: parent, Index: index}
 	c.ExtendBaseWidget(c)
 	c.Text = " "
 	return c
+}
+
+func (c *MSCell) GetPosition() utility.Position {
+	return utility.Position {X: c.Index % c.Parent.Width, Y: c.Index / c.Parent.Width}
+}
+
+func (c *MSCell) GetIndex(pos utility.Position) int {
+	return c.Parent.Width * pos.Y + pos.X
+}
+
+func (c *MSCell) GetNearBombs() int {
+	count := 0
+	pos := c.GetPosition()
+	aroundPositions := [8]utility.Position {
+		{X: pos.X - 1, Y: pos.Y - 1},
+		{X: pos.X    , Y: pos.Y - 1},
+		{X: pos.X + 1, Y: pos.Y - 1},
+		{X: pos.X - 1, Y: pos.Y    },
+		{X: pos.X + 1, Y: pos.Y    },
+		{X: pos.X - 1, Y: pos.Y + 1},
+		{X: pos.X    , Y: pos.Y + 1},
+		{X: pos.X + 1, Y: pos.Y + 1},
+	}
+
+	for _, p := range aroundPositions {
+		if p.X < 0 || p.X >= c.Parent.Width || p.Y < 0 || p.Y >= c.Parent.Height {
+			continue
+		}
+
+		cell := (*c.Parent.Cells)[c.GetIndex(p)].(*MSCell)
+		if cell.HasBomb {
+			count++
+		}
+	}
+
+	return count
 }
 
 func (c *MSCell) Tapped(e *fyne.PointEvent) {
@@ -116,14 +147,15 @@ func (c *MSCell) Tapped(e *fyne.PointEvent) {
 		return
 	}
 
+	c.Parent.OnCellOpen(c)
+	
 	if c.HasBomb {
 		c.Button.Text = "x"
 	} else {
-		c.Button.Text = fmt.Sprint(c.NearBombs)
+		c.Button.Text = fmt.Sprint(c.GetNearBombs())
 	}
 
 	c.IsOpened = true
-	c.Parent.OnCellOpen(c)
 	c.Refresh()
 }
 
