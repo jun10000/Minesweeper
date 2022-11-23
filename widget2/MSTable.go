@@ -13,17 +13,36 @@ import (
 // MSTable
 //++++++++++++++++++++++++++++++
 
+type MSTableStates int
+const (
+	MSTableStatesNonInit MSTableStates = iota
+	MSTableStatesInit
+	MSTableStatesClear
+)
+
 type MSTable struct {
 	Width int
 	Height int
 	Bombs int
+	OnClear func()
+	OnGameOver func()
 	Cells *[]fyne.CanvasObject
-	IsInit bool
+	NonOpenedCells int
+	Status MSTableStates
 }
 
-func NewMSTable(width int, height int, bombs int) *fyne.Container {
+func NewMSTable(width int, height int, bombs int, onClear func(), onGameOver func()) *fyne.Container {
 	c := container.NewGridWithColumns(width)
-	t := &MSTable{Width: width, Height: height, Bombs: bombs, Cells: &c.Objects}
+	t := &MSTable{
+		Width: width,
+		Height: height,
+		Bombs: bombs,
+		OnClear: onClear,
+		OnGameOver: onGameOver,
+		Cells: &c.Objects,
+		NonOpenedCells: width * height,
+		Status: MSTableStatesNonInit,
+	}
 
 	for i := 0; i < (width * height); i++ {
 		c.Add(NewMSCell(t, i))
@@ -62,7 +81,7 @@ func (t *MSTable) Init(exceptCell *MSCell) {
 		currentBombIndex++
 	}
 
-	t.IsInit = true
+	t.Status = MSTableStatesInit
 }
 
 //++++++++++++++++++++++++++++++
@@ -70,11 +89,23 @@ func (t *MSTable) Init(exceptCell *MSCell) {
 //++++++++++++++++++++++++++++++
 
 func (t *MSTable) OnCellOpen(c *MSCell) {
-	if !t.IsInit {
+	if t.Status == MSTableStatesNonInit {
 		t.Init(c)
 	}
 
-	// ToDo: Make goal judgement (Death or Alive)
+	t.NonOpenedCells--
+
+	if c.HasBomb {
+		t.Status = MSTableStatesClear
+		t.OnGameOver()
+		return
+	}
+
+	if t.NonOpenedCells <= t.Bombs {
+		t.Status = MSTableStatesClear
+		t.OnClear()
+		return
+	}
 }
 
 //++++++++++++++++++++++++++++++
@@ -142,8 +173,12 @@ func (c *MSCell) GetNearBombs() int {
 	return count
 }
 
+//++++++++++++++++++++++++++++++
+// MSCell Override Methods
+//++++++++++++++++++++++++++++++
+
 func (c *MSCell) Tapped(e *fyne.PointEvent) {
-	if c.IsOpened || c.MarkState != MSCellMarkStatesNone {
+	if c.IsOpened || c.MarkState != MSCellMarkStatesNone || c.Parent.Status == MSTableStatesClear {
 		return
 	}
 
@@ -160,7 +195,7 @@ func (c *MSCell) Tapped(e *fyne.PointEvent) {
 }
 
 func (c *MSCell) TappedSecondary(e *fyne.PointEvent) {
-	if c.IsOpened {
+	if c.IsOpened || c.Parent.Status == MSTableStatesClear {
 		return
 	}
 
