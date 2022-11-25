@@ -2,9 +2,11 @@ package main
 
 import (
 	"jun10000.github.io/minesweeper/container2"
+	"jun10000.github.io/minesweeper/utility"
 	"jun10000.github.io/minesweeper/widget2"
 
 	"fmt"
+	"time"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
@@ -17,13 +19,13 @@ const TITLE = "Minesweeper"
 var (
 	application fyne.App
 	window fyne.Window
+
+	width = float64(13)
+	height = float64(5)
+	bombs = float64(10)
 )
 
 func newTitleLayout() *fyne.Container {
-	width := float64(13)
-	height := float64(5)
-	bombs := float64(10)
-
 	width_data := binding.BindFloat(&width)
 	height_data := binding.BindFloat(&height)
 	bombs_data := binding.BindFloat(&bombs)
@@ -46,29 +48,30 @@ func newTitleLayout() *fyne.Container {
 			widget2.NewIntEntryWithData(binding.FloatToStringWithFormat(bombs_data, "%.0f")),
 		),
 		widget.NewButton("START", func() {
-			window.SetContent(newGameLayout(int(width), int(height), int(bombs)))
+			window.SetContent(newGameLayout())
 			window.Resize(fyne.NewSize(0, 0))
 		}),
 	)
 }
 
-func newGameLayout(width int, height int, bombs int) *fyne.Container {
-	return widget2.NewMSTable(width, height, bombs,
-		func() {
-			window.SetContent(newClearLayout(width, height, bombs))
+func newGameLayout() *fyne.Container {
+	return widget2.NewMSTable(int(width), int(height), int(bombs),
+		func(elapsedTime time.Duration) {
+			window.SetContent(newClearLayout(elapsedTime))
 			window.Resize(fyne.NewSize(240, 0))
 		},
-		func() {
-			window.SetContent(newGameOverLayout(width, height, bombs))
+		func(elapsedTime time.Duration) {
+			window.SetContent(newGameOverLayout(elapsedTime))
 			window.Resize(fyne.NewSize(240, 0))
 		})
 }
 
-func newClearLayout(width int, height int, bombs int) *fyne.Container {
+func newClearLayout(elapsedTime time.Duration) *fyne.Container {
+	et_h, et_m, et_s := utility.GetHoursToSeconds(elapsedTime)
 	return container.NewVBox(
 		widget.NewLabelWithStyle("Clear!", fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
-		widget.NewLabelWithStyle(fmt.Sprintf("(%dx%d, %dBombs)", width, height, bombs), fyne.TextAlignCenter, fyne.TextStyle{}),
-		widget.NewLabelWithStyle("Elapsed Time: ---", fyne.TextAlignCenter, fyne.TextStyle{}),
+		widget.NewLabelWithStyle(fmt.Sprintf("(%.0fx%.0f, %.0fBombs)", width, height, bombs), fyne.TextAlignCenter, fyne.TextStyle{}),
+		widget.NewLabelWithStyle(fmt.Sprintf("Elapsed Time: %d:%02d:%02d", et_h, et_m, et_s), fyne.TextAlignCenter, fyne.TextStyle{}),
 		widget.NewButton("Replay?", func() {
 			window.SetContent(newTitleLayout())
 			window.Resize(fyne.NewSize(640, 0))
@@ -76,11 +79,12 @@ func newClearLayout(width int, height int, bombs int) *fyne.Container {
 	)
 }
 
-func newGameOverLayout(width int, height int, bombs int) *fyne.Container {
+func newGameOverLayout(elapsedTime time.Duration) *fyne.Container {
+	et_h, et_m, et_s := utility.GetHoursToSeconds(elapsedTime)
 	return container.NewVBox(
 		widget.NewLabelWithStyle("GameOver...", fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
-		widget.NewLabelWithStyle(fmt.Sprintf("(%dx%d, %dBombs)", width, height, bombs), fyne.TextAlignCenter, fyne.TextStyle{}),
-		widget.NewLabelWithStyle("Elapsed Time: ---", fyne.TextAlignCenter, fyne.TextStyle{}),
+		widget.NewLabelWithStyle(fmt.Sprintf("(%.0fx%.0f, %.0fBombs)", width, height, bombs), fyne.TextAlignCenter, fyne.TextStyle{}),
+		widget.NewLabelWithStyle(fmt.Sprintf("Elapsed Time: %d:%02d:%02d", et_h, et_m, et_s), fyne.TextAlignCenter, fyne.TextStyle{}),
 		widget.NewButton("Replay?", func() {
 			window.SetContent(newTitleLayout())
 			window.Resize(fyne.NewSize(640, 0))

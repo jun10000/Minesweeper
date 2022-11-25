@@ -4,6 +4,7 @@ import (
 	"jun10000.github.io/minesweeper/utility"
 
 	"fmt"
+	"time"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
@@ -24,14 +25,15 @@ type MSTable struct {
 	Width int
 	Height int
 	Bombs int
-	OnClear func()
-	OnGameOver func()
+	OnClear func(time.Duration)
+	OnGameOver func(time.Duration)
 	Cells *[]fyne.CanvasObject
 	NonOpenedCells int
 	Status MSTableStates
+	InitTime time.Time
 }
 
-func NewMSTable(width int, height int, bombs int, onClear func(), onGameOver func()) *fyne.Container {
+func NewMSTable(width int, height int, bombs int, onClear func(time.Duration), onGameOver func(time.Duration)) *fyne.Container {
 	c := container.NewGridWithColumns(width)
 	t := &MSTable{
 		Width: width,
@@ -82,6 +84,7 @@ func (t *MSTable) Init(exceptCell *MSCell) {
 	}
 
 	t.Status = MSTableStatesInit
+	t.InitTime = time.Now()
 }
 
 //++++++++++++++++++++++++++++++
@@ -97,13 +100,13 @@ func (t *MSTable) OnCellOpen(c *MSCell) {
 
 	if c.HasBomb {
 		t.Status = MSTableStatesClear
-		t.OnGameOver()
+		t.OnGameOver(time.Now().Sub(t.InitTime))
 		return
 	}
 
 	if t.NonOpenedCells <= t.Bombs {
 		t.Status = MSTableStatesClear
-		t.OnClear()
+		t.OnClear(time.Now().Sub(t.InitTime))
 		return
 	}
 }
