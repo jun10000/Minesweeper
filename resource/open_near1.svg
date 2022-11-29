@@ -8,11 +8,13 @@
    id="_x32_"
    x="0px"
    y="0px"
-   viewBox="0 0 512 512"
-   style="width: 512px; height: 512px; opacity: 1;"
+   viewBox="0 0 64 64"
+   style="opacity:1"
    xml:space="preserve"
-   sodipodi:docname="open_near3.svg"
+   sodipodi:docname="open_near1.svg"
    inkscape:version="1.2.1 (9c6d41e410, 2022-07-14)"
+   width="64"
+   height="64"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -20,9 +22,9 @@
    xmlns:svg="http://www.w3.org/2000/svg"><defs
    id="defs11"><rect
      x="22.562712"
-     y="88.862372"
+     y="88.862373"
      width="468.95728"
-     height="338.78779"
+     height="338.78778"
      id="rect354" /><linearGradient
      inkscape:collect="always"
      id="linearGradient986"><stop
@@ -33,10 +35,10 @@
        offset="1"
        id="stop984" /></linearGradient><linearGradient
      id="linearGradient973"><stop
-       style="stop-color:#1ae51a;stop-opacity:1;"
+       style="stop-color:#1a1ae5;stop-opacity:1;"
        offset="0"
        id="stop977" /><stop
-       style="stop-color:#0a5b0a;stop-opacity:0.9987309;"
+       style="stop-color:#0a0a5b;stop-opacity:0.9987309;"
        offset="1"
        id="stop979" /></linearGradient><linearGradient
      id="linearGradient957"
@@ -52,7 +54,8 @@
      x2="511.65289"
      y2="512.17358"
      gradientUnits="userSpaceOnUse"
-     spreadMethod="pad" /><linearGradient
+     spreadMethod="pad"
+     gradientTransform="scale(0.125)" /><linearGradient
      inkscape:collect="always"
      xlink:href="#linearGradient986"
      id="linearGradient988"
@@ -71,8 +74,8 @@
    inkscape:deskcolor="#d1d1d1"
    showgrid="false"
    inkscape:zoom="2.8808594"
-   inkscape:cx="216.77559"
-   inkscape:cy="260.16542"
+   inkscape:cx="216.94915"
+   inkscape:cy="260.51254"
    inkscape:window-width="3840"
    inkscape:window-height="2036"
    inkscape:window-x="3828"
@@ -86,16 +89,16 @@
 </style>
 
 <rect
-   style="fill:url(#linearGradient975);stroke-width:2.069;fill-opacity:1;stroke-dasharray:none"
+   style="fill:url(#linearGradient975);fill-opacity:1;stroke-width:0.258625;stroke-dasharray:none"
    id="rect900"
-   width="512"
-   height="512"
+   width="64"
+   height="64"
    x="0"
    y="0" /><text
    xml:space="preserve"
    id="text352"
    style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:146.393px;font-family:'DSEG7 Classic';-inkscape-font-specification:'DSEG7 Classic Italic';white-space:pre;shape-inside:url(#rect354);display:inline;fill:#ffffff;fill-opacity:1;stroke:#ca0000;stroke-width:0"
-   transform="matrix(2.9139252,0,0,2.9151404,7.4657751,-269.77154)"><tspan
+   transform="matrix(0.36424065,0,0,0.36439255,-12.05075,-33.72144)"><tspan
      x="22.5625"
      y="253.55541"
-     id="tspan8381">3</tspan></text></svg>
+     id="tspan265">1</tspan></text></svg>
