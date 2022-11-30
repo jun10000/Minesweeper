@@ -180,6 +180,10 @@ func (c *MSCell) GetNearBombs() int {
 // MSCell Override Methods
 //++++++++++++++++++++++++++++++
 
+func (c *MSCell) MinSize() fyne.Size {
+	return fyne.NewSize(32, 32)
+}
+
 func (c *MSCell) Tapped(e *fyne.PointEvent) {
 	if c.IsOpened || c.MarkState != MSCellMarkStatesNone || c.Parent.Status == MSTableStatesClear {
 		return
