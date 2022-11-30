@@ -1,9 +1,9 @@
 package widget2
 
 import (
+	"jun10000.github.io/minesweeper/resource"
 	"jun10000.github.io/minesweeper/utility"
 
-	"fmt"
 	"time"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -123,7 +123,7 @@ const (
 )
 
 type MSCell struct {
-	widget.Button
+	widget.Icon
 	
 	Parent *MSTable
 	Index int
@@ -136,7 +136,7 @@ type MSCell struct {
 func NewMSCell(parent *MSTable, index int) *MSCell {
 	c := &MSCell {Parent: parent, Index: index}
 	c.ExtendBaseWidget(c)
-	c.Text = " "
+	c.SetResource(resource.ClosenonePng)
 	return c
 }
 
@@ -188,9 +188,28 @@ func (c *MSCell) Tapped(e *fyne.PointEvent) {
 	c.Parent.OnCellOpen(c)
 	
 	if c.HasBomb {
-		c.Button.Text = "x"
+		c.Icon.SetResource(resource.OpenbombPng)
 	} else {
-		c.Button.Text = fmt.Sprint(c.GetNearBombs())
+		switch c.GetNearBombs() {
+		case 0:
+			c.Icon.SetResource(resource.OpennonePng)
+		case 1:
+			c.Icon.SetResource(resource.Opennear1Png)
+		case 2:
+			c.Icon.SetResource(resource.Opennear2Png)
+		case 3:
+			c.Icon.SetResource(resource.Opennear3Png)
+		case 4:
+			c.Icon.SetResource(resource.Opennear4Png)
+		case 5:
+			c.Icon.SetResource(resource.Opennear5Png)
+		case 6:
+			c.Icon.SetResource(resource.Opennear6Png)
+		case 7:
+			c.Icon.SetResource(resource.Opennear7Png)
+		case 8:
+			c.Icon.SetResource(resource.Opennear8Png)
+		}
 	}
 
 	c.IsOpened = true
@@ -205,13 +224,13 @@ func (c *MSCell) TappedSecondary(e *fyne.PointEvent) {
 	switch c.MarkState {
 	case MSCellMarkStatesNone:
 		c.MarkState = MSCellMarkStatesBomb
-		c.Button.Text = "B"
+		c.Icon.SetResource(resource.ClosebombPng)
 	case MSCellMarkStatesBomb:
 		c.MarkState = MSCellMarkStatesQuestion
-		c.Button.Text = "?"
+		c.Icon.SetResource(resource.ClosequestionPng)
 	case MSCellMarkStatesQuestion:
 		c.MarkState = MSCellMarkStatesNone
-		c.Button.Text = " "
+		c.Icon.SetResource(resource.ClosenonePng)
 	}
 
 	c.Refresh()
