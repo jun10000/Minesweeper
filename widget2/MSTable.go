@@ -80,8 +80,8 @@ func (t *MSTable) MinSize(objects []fyne.CanvasObject) fyne.Size {
 	}
 
 	cellSize := objects[0].MinSize()
-	w := cellSize.Width * (float32)(t.Width)
-	h := cellSize.Height * (float32)(t.Height)
+	w := cellSize.Width * float32(t.Width)
+	h := cellSize.Height * float32(t.Height)
 
 	return fyne.NewSize(w, h)
 }
