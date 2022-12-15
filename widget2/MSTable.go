@@ -27,48 +27,31 @@ type MSTable struct {
 	Bombs int
 	OnClear func(time.Duration)
 	OnGameOver func(time.Duration)
-	Cells *[]fyne.CanvasObject
 	NonOpenedCells int
 	Status MSTableStates
+	Cells *[]fyne.CanvasObject
 	InitTime time.Time
 }
 
 func NewMSTable(width int, height int, bombs int, onClear func(time.Duration), onGameOver func(time.Duration)) *fyne.Container {
-	c := container.NewGridWithColumns(width)
 	t := &MSTable{
 		Width: width,
 		Height: height,
 		Bombs: bombs,
 		OnClear: onClear,
 		OnGameOver: onGameOver,
-		Cells: &c.Objects,
 		NonOpenedCells: width * height,
 		Status: MSTableStatesNonInit,
 	}
+
+	c := container.New(t)
+	t.Cells = &c.Objects
 
 	for i := 0; i < (width * height); i++ {
 		c.Add(NewMSCell(t, i))
 	}
 
-	return container.New(t, c)
-}
-
-func (t *MSTable) MinSize(objects []fyne.CanvasObject) fyne.Size {
-	if len(objects) != 1 {
-		return fyne.NewSize(0, 0)
-	}
-
-	return objects[0].MinSize()
-}
-
-func (t *MSTable) Layout(objects []fyne.CanvasObject, containerSize fyne.Size) {
-	if len(objects) != 1 {
-		return
-	}
-
-	o := objects[0]
-	o.Resize(containerSize)
-	o.Move(fyne.NewPos(0, 0))
+	return c
 }
 
 func (t *MSTable) Init(exceptCell *MSCell) {
@@ -85,6 +68,39 @@ func (t *MSTable) Init(exceptCell *MSCell) {
 
 	t.Status = MSTableStatesInit
 	t.InitTime = time.Now()
+}
+
+//++++++++++++++++++++++++++++++
+// MSTable Container Methods
+//++++++++++++++++++++++++++++++
+
+func (t *MSTable) MinSize(objects []fyne.CanvasObject) fyne.Size {
+	if len(objects) == 0 {
+		return fyne.NewSize(0, 0)
+	}
+
+	cellSize := objects[0].MinSize()
+	w := cellSize.Width * (float32)(t.Width)
+	h := cellSize.Height * (float32)(t.Height)
+
+	return fyne.NewSize(w, h)
+}
+
+func (t *MSTable) Layout(objects []fyne.CanvasObject, containerSize fyne.Size) {
+	if len(objects) == 0 {
+		return
+	}
+
+	cellSize := objects[0].MinSize()
+
+	for _, o := range objects {
+		p := o.(*MSCell).GetPosition()
+		x := float32(p.X) * cellSize.Width
+		y := float32(p.Y) * cellSize.Height
+
+		o.Resize(cellSize)
+		o.Move(fyne.NewPos(x, y))
+	}
 }
 
 //++++++++++++++++++++++++++++++
@@ -110,6 +126,8 @@ func (t *MSTable) OnCellOpen(c *MSCell) {
 		return
 	}
 }
+
+
 
 //++++++++++++++++++++++++++++++
 // MSCell
@@ -177,7 +195,7 @@ func (c *MSCell) GetNearBombs() int {
 }
 
 //++++++++++++++++++++++++++++++
-// MSCell Override Methods
+// MSCell Widget Methods
 //++++++++++++++++++++++++++++++
 
 func (c *MSCell) MinSize() fyne.Size {

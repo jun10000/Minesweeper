@@ -27,7 +27,7 @@ func GetRandBinaryArray(length int, trueCount int) []bool {
 	return array
 }
 
-func GetHoursToSeconds(d time.Duration) (int, int, int) {
+func SplitDuration(d time.Duration) (int, int, int) {
 	s := int(d.Seconds())
 
 	h := s / 3600

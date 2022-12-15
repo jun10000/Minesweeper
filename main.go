@@ -67,7 +67,7 @@ func newGameLayout() *fyne.Container {
 }
 
 func newClearLayout(elapsedTime time.Duration) *fyne.Container {
-	et_h, et_m, et_s := utility.GetHoursToSeconds(elapsedTime)
+	et_h, et_m, et_s := utility.SplitDuration(elapsedTime)
 	return container.NewVBox(
 		widget.NewLabelWithStyle("Clear!", fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
 		widget.NewLabelWithStyle(fmt.Sprintf("(%.0fx%.0f, %.0fBombs)", width, height, bombs), fyne.TextAlignCenter, fyne.TextStyle{}),
@@ -80,7 +80,7 @@ func newClearLayout(elapsedTime time.Duration) *fyne.Container {
 }
 
 func newGameOverLayout(elapsedTime time.Duration) *fyne.Container {
-	et_h, et_m, et_s := utility.GetHoursToSeconds(elapsedTime)
+	et_h, et_m, et_s := utility.SplitDuration(elapsedTime)
 	return container.NewVBox(
 		widget.NewLabelWithStyle("GameOver...", fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
 		widget.NewLabelWithStyle(fmt.Sprintf("(%.0fx%.0f, %.0fBombs)", width, height, bombs), fyne.TextAlignCenter, fyne.TextStyle{}),
