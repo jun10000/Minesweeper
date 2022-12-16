@@ -10,8 +10,16 @@ type Position struct {
 	Y int
 }
 
+func NewPosition(x int, y int) Position {
+	return Position{ X: x, Y: y }
+}
+
 func GetRandBinaryArray(length int, trueCount int) []bool {
-	s := rand.NewSource(time.Now().UnixNano())
+	return GetRandBinaryArrayWithSeed(length, trueCount, time.Now().UnixNano())
+}
+
+func GetRandBinaryArrayWithSeed(length int, trueCount int, seed int64) []bool {
+	s := rand.NewSource(seed)
 	r := rand.New(s)
 	array := make([]bool, length)
 

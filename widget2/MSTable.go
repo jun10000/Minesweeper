@@ -25,19 +25,22 @@ type MSTable struct {
 	Width int
 	Height int
 	Bombs int
-	OnClear func(time.Duration)
-	OnGameOver func(time.Duration)
+	Seed int64
+	OnClear func(time.Duration, utility.Position)
+	OnGameOver func(time.Duration, utility.Position)
 	NonOpenedCells int
 	Status MSTableStates
 	Cells *[]fyne.CanvasObject
 	InitTime time.Time
+	FirstCell *MSCell
 }
 
-func NewMSTable(width int, height int, bombs int, onClear func(time.Duration), onGameOver func(time.Duration)) *fyne.Container {
+func NewMSTable(width int, height int, bombs int, seed int64, onClear func(time.Duration, utility.Position), onGameOver func(time.Duration, utility.Position)) *fyne.Container {
 	t := &MSTable{
 		Width: width,
 		Height: height,
 		Bombs: bombs,
+		Seed: seed,
 		OnClear: onClear,
 		OnGameOver: onGameOver,
 		NonOpenedCells: width * height,
@@ -55,7 +58,7 @@ func NewMSTable(width int, height int, bombs int, onClear func(time.Duration), o
 }
 
 func (t *MSTable) Init(exceptCell *MSCell) {
-	bombArray := utility.GetRandBinaryArray(t.Width * t.Height - 1, t.Bombs)
+	bombArray := utility.GetRandBinaryArrayWithSeed(t.Width * t.Height - 1, t.Bombs, t.Seed)
 	currentBombIndex := 0
 	for _, c := range *t.Cells {
 		if c == exceptCell {
@@ -68,6 +71,7 @@ func (t *MSTable) Init(exceptCell *MSCell) {
 
 	t.Status = MSTableStatesInit
 	t.InitTime = time.Now()
+	t.FirstCell = exceptCell
 }
 
 //++++++++++++++++++++++++++++++
@@ -116,13 +120,13 @@ func (t *MSTable) OnCellOpen(c *MSCell) {
 
 	if c.HasBomb {
 		t.Status = MSTableStatesClear
-		t.OnGameOver(time.Now().Sub(t.InitTime))
+		t.OnGameOver(time.Now().Sub(t.InitTime), t.FirstCell.GetPosition())
 		return
 	}
 
 	if t.NonOpenedCells <= t.Bombs {
 		t.Status = MSTableStatesClear
-		t.OnClear(time.Now().Sub(t.InitTime))
+		t.OnClear(time.Now().Sub(t.InitTime), t.FirstCell.GetPosition())
 		return
 	}
 }
@@ -159,7 +163,7 @@ func NewMSCell(parent *MSTable, index int) *MSCell {
 }
 
 func (c *MSCell) GetPosition() utility.Position {
-	return utility.Position {X: c.Index % c.Parent.Width, Y: c.Index / c.Parent.Width}
+	return utility.NewPosition(c.Index % c.Parent.Width, c.Index / c.Parent.Width)
 }
 
 func (c *MSCell) GetIndex(pos utility.Position) int {
@@ -170,14 +174,14 @@ func (c *MSCell) GetNearBombs() int {
 	count := 0
 	pos := c.GetPosition()
 	aroundPositions := [8]utility.Position {
-		{X: pos.X - 1, Y: pos.Y - 1},
-		{X: pos.X    , Y: pos.Y - 1},
-		{X: pos.X + 1, Y: pos.Y - 1},
-		{X: pos.X - 1, Y: pos.Y    },
-		{X: pos.X + 1, Y: pos.Y    },
-		{X: pos.X - 1, Y: pos.Y + 1},
-		{X: pos.X    , Y: pos.Y + 1},
-		{X: pos.X + 1, Y: pos.Y + 1},
+		utility.NewPosition(pos.X - 1, pos.Y - 1),
+		utility.NewPosition(pos.X    , pos.Y - 1),
+		utility.NewPosition(pos.X + 1, pos.Y - 1),
+		utility.NewPosition(pos.X - 1, pos.Y    ),
+		utility.NewPosition(pos.X + 1, pos.Y    ),
+		utility.NewPosition(pos.X - 1, pos.Y + 1),
+		utility.NewPosition(pos.X    , pos.Y + 1),
+		utility.NewPosition(pos.X + 1, pos.Y + 1),
 	}
 
 	for _, p := range aroundPositions {
