@@ -18,7 +18,8 @@ const TITLE = "Minesweeper"
 
 var (
 	application fyne.App
-	window fyne.Window
+	window_main fyne.Window
+	window_result fyne.Window
 
 	width = float64(13)
 	height = float64(5)
@@ -57,8 +58,8 @@ func newTitleLayout() *fyne.Container {
 			}),
 		),
 		widget.NewButton("START", func() {
-			window.SetContent(newGameLayout())
-			window.Resize(fyne.NewSize(0, 0))
+			window_main.SetContent(newGameLayout())
+			window_main.Resize(fyne.NewSize(0, 0))
 		}),
 	)
 }
@@ -66,12 +67,16 @@ func newTitleLayout() *fyne.Container {
 func newGameLayout() *fyne.Container {
 	return widget2.NewMSTable(int(width), int(height), int(bombs), int64(seed),
 		func(elapsedTime time.Duration, firstPos utility.Position) {
-			window.SetContent(newClearLayout(elapsedTime, firstPos))
-			window.Resize(fyne.NewSize(300, 0))
+			window_result = application.NewWindow("Result")
+			window_result.SetContent(newClearLayout(elapsedTime, firstPos))
+			window_result.Resize(fyne.NewSize(300, 0))
+			window_result.Show()
 		},
 		func(elapsedTime time.Duration, firstPos utility.Position) {
-			window.SetContent(newGameOverLayout(elapsedTime, firstPos))
-			window.Resize(fyne.NewSize(300, 0))
+			window_result = application.NewWindow("Result")
+			window_result.SetContent(newGameOverLayout(elapsedTime, firstPos))
+			window_result.Resize(fyne.NewSize(300, 0))
+			window_result.Show()
 		})
 }
 
@@ -87,8 +92,9 @@ func newClearLayout(elapsedTime time.Duration, firstPos utility.Position) *fyne.
 			"Elapsed Time: %d:%02d:%02d",
 			width, height, bombs, seed, firstPos.X, firstPos.Y, et_h, et_m, et_s), fyne.TextAlignCenter, fyne.TextStyle{}),
 		widget.NewButton("Replay?", func() {
-			window.SetContent(newTitleLayout())
-			window.Resize(fyne.NewSize(640, 0))
+			window_main.SetContent(newTitleLayout())
+			window_main.Resize(fyne.NewSize(640, 0))
+			window_result.Close()
 		}),
 	)
 }
@@ -105,16 +111,18 @@ func newGameOverLayout(elapsedTime time.Duration, firstPos utility.Position) *fy
 			"Elapsed Time: %d:%02d:%02d",
 			width, height, bombs, seed, firstPos.X, firstPos.Y, et_h, et_m, et_s), fyne.TextAlignCenter, fyne.TextStyle{}),
 		widget.NewButton("Replay?", func() {
-			window.SetContent(newTitleLayout())
-			window.Resize(fyne.NewSize(640, 0))
+			window_main.SetContent(newTitleLayout())
+			window_main.Resize(fyne.NewSize(640, 0))
+			window_result.Close()
 		}),
 	)
 }
 
 func main() {
 	application = app.New()
-	window = application.NewWindow(TITLE)
-	window.SetContent(newTitleLayout())
-	window.Resize(fyne.NewSize(640, 0))
-	window.ShowAndRun()
+	window_main = application.NewWindow(TITLE)
+	window_main.SetContent(newTitleLayout())
+	window_main.Resize(fyne.NewSize(640, 0))
+	window_main.SetMaster()
+	window_main.ShowAndRun()
 }

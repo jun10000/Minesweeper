@@ -170,10 +170,9 @@ func (c *MSCell) GetIndex(pos utility.Position) int {
 	return c.Parent.Width * pos.Y + pos.X
 }
 
-func (c *MSCell) GetNearBombs() int {
-	count := 0
+func (c *MSCell) GetNearCells() []*MSCell {
 	pos := c.GetPosition()
-	aroundPositions := [8]utility.Position {
+	poslist := [8]utility.Position {
 		utility.NewPosition(pos.X - 1, pos.Y - 1),
 		utility.NewPosition(pos.X    , pos.Y - 1),
 		utility.NewPosition(pos.X + 1, pos.Y - 1),
@@ -183,13 +182,24 @@ func (c *MSCell) GetNearBombs() int {
 		utility.NewPosition(pos.X    , pos.Y + 1),
 		utility.NewPosition(pos.X + 1, pos.Y + 1),
 	}
+	ret := make([]*MSCell, 0, 8)
 
-	for _, p := range aroundPositions {
+	for _, p := range poslist {
 		if p.X < 0 || p.X >= c.Parent.Width || p.Y < 0 || p.Y >= c.Parent.Height {
 			continue
 		}
 
 		cell := (*c.Parent.Cells)[c.GetIndex(p)].(*MSCell)
+		ret = append(ret, cell)
+	}
+
+	return ret
+}
+
+func (c *MSCell) GetNearBombs() int {
+	count := 0
+
+	for _, cell := range c.GetNearCells() {
 		if cell.HasBomb {
 			count++
 		}
@@ -198,20 +208,13 @@ func (c *MSCell) GetNearBombs() int {
 	return count
 }
 
-//++++++++++++++++++++++++++++++
-// MSCell Widget Methods
-//++++++++++++++++++++++++++++++
-
-func (c *MSCell) MinSize() fyne.Size {
-	return fyne.NewSize(32, 32)
-}
-
-func (c *MSCell) Tapped(e *fyne.PointEvent) {
-	if c.IsOpened || c.MarkState != MSCellMarkStatesNone || c.Parent.Status == MSTableStatesClear {
+func (c *MSCell) Open() {
+	if c.IsOpened || c.Parent.Status == MSTableStatesClear {
 		return
 	}
 
 	c.Parent.OnCellOpen(c)
+	c.IsOpened = true
 	
 	if c.HasBomb {
 		c.Icon.SetResource(resource.OpenbombPng)
@@ -219,6 +222,9 @@ func (c *MSCell) Tapped(e *fyne.PointEvent) {
 		switch c.GetNearBombs() {
 		case 0:
 			c.Icon.SetResource(resource.OpennonePng)
+			for _, cell := range c.GetNearCells() {
+				cell.Open()
+			}
 		case 1:
 			c.Icon.SetResource(resource.Opennear1Png)
 		case 2:
@@ -238,8 +244,22 @@ func (c *MSCell) Tapped(e *fyne.PointEvent) {
 		}
 	}
 
-	c.IsOpened = true
-	c.Refresh()
+}
+
+//++++++++++++++++++++++++++++++
+// MSCell Widget Methods
+//++++++++++++++++++++++++++++++
+
+func (c *MSCell) MinSize() fyne.Size {
+	return fyne.NewSize(32, 32)
+}
+
+func (c *MSCell) Tapped(e *fyne.PointEvent) {
+	if c.MarkState != MSCellMarkStatesNone {
+		return
+	}
+
+	c.Open()
 }
 
 func (c *MSCell) TappedSecondary(e *fyne.PointEvent) {
@@ -258,6 +278,4 @@ func (c *MSCell) TappedSecondary(e *fyne.PointEvent) {
 		c.MarkState = MSCellMarkStatesNone
 		c.Icon.SetResource(resource.ClosenonePng)
 	}
-
-	c.Refresh()
 }
