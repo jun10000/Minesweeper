@@ -21,8 +21,8 @@ var (
 	window_main fyne.Window
 	window_result fyne.Window
 
-	width = float64(13)
-	height = float64(5)
+	width = float64(10)
+	height = float64(10)
 	bombs = float64(10)
 	seed = float64(time.Now().UnixNano())
 )
@@ -33,22 +33,42 @@ func newTitleLayout() *fyne.Container {
 	bombs_data := binding.BindFloat(&bombs)
 	seed_data := binding.BindFloat(&seed)
 
+	bombs_slider := widget.NewSliderWithData(2, 9998, bombs_data)
+	bombs_entry := widget2.NewIntEntryWithData(binding.FloatToStringWithFormat(bombs_data, "%.0f"))
+
+	width_data.AddListener(binding.NewDataListener(func() {
+		max := width * height - 2
+		bombs_slider.Max = max
+		if bombs >= max {
+			bombs_data.Set(max)
+		}
+		bombs_slider.Refresh()
+	}))
+	height_data.AddListener(binding.NewDataListener(func() {
+		max := width * height - 2
+		bombs_slider.Max = max
+		if bombs >= max {
+			bombs_data.Set(max)
+		}
+		bombs_slider.Refresh()
+	}))
+
 	return container.NewVBox(
 		widget.NewLabelWithStyle(TITLE, fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
 		container2.NewOneColumnMax(1,
 			widget.NewLabel("Width"),
-			widget.NewSliderWithData(2, 30, width_data),
+			widget.NewSliderWithData(2, 100, width_data),
 			widget2.NewIntEntryWithData(binding.FloatToStringWithFormat(width_data, "%.0f")),
 		),
 		container2.NewOneColumnMax(1,
 			widget.NewLabel("Height"),
-			widget.NewSliderWithData(2, 30, height_data),
+			widget.NewSliderWithData(2, 100, height_data),
 			widget2.NewIntEntryWithData(binding.FloatToStringWithFormat(height_data, "%.0f")),
 		),
 		container2.NewOneColumnMax(1,
 			widget.NewLabel("Bombs"),
-			widget.NewSliderWithData(1, 300, bombs_data),
-			widget2.NewIntEntryWithData(binding.FloatToStringWithFormat(bombs_data, "%.0f")),
+			bombs_slider,
+			bombs_entry,
 		),
 		container.NewHBox(
 			widget.NewLabel("Seed"),
