@@ -158,7 +158,7 @@ type MSCell struct {
 func NewMSCell(parent *MSTable, index int) *MSCell {
 	c := &MSCell {Parent: parent, Index: index}
 	c.ExtendBaseWidget(c)
-	c.SetResource(resource.ClosenonePng)
+	c.Refresh()
 	return c
 }
 
@@ -215,35 +215,27 @@ func (c *MSCell) Open() {
 
 	c.Parent.OnCellOpen(c)
 	c.IsOpened = true
-	
-	if c.HasBomb {
-		c.Icon.SetResource(resource.OpenbombPng)
-	} else {
-		switch c.GetNearBombs() {
-		case 0:
-			c.Icon.SetResource(resource.OpennonePng)
-			for _, cell := range c.GetNearCells() {
-				cell.Open()
-			}
-		case 1:
-			c.Icon.SetResource(resource.Opennear1Png)
-		case 2:
-			c.Icon.SetResource(resource.Opennear2Png)
-		case 3:
-			c.Icon.SetResource(resource.Opennear3Png)
-		case 4:
-			c.Icon.SetResource(resource.Opennear4Png)
-		case 5:
-			c.Icon.SetResource(resource.Opennear5Png)
-		case 6:
-			c.Icon.SetResource(resource.Opennear6Png)
-		case 7:
-			c.Icon.SetResource(resource.Opennear7Png)
-		case 8:
-			c.Icon.SetResource(resource.Opennear8Png)
+	c.Refresh()
+
+	// Recursive calls
+	if !c.HasBomb && c.GetNearBombs() == 0 {
+		for _, cell := range c.GetNearCells() {
+			cell.Open()
 		}
 	}
+}
 
+func (c *MSCell) SwitchMarkState() {
+	switch c.MarkState {
+	case MSCellMarkStatesNone:
+		c.MarkState = MSCellMarkStatesBomb
+	case MSCellMarkStatesBomb:
+		c.MarkState = MSCellMarkStatesQuestion
+	case MSCellMarkStatesQuestion:
+		c.MarkState = MSCellMarkStatesNone
+	}
+
+	c.Refresh()
 }
 
 //++++++++++++++++++++++++++++++
@@ -267,15 +259,47 @@ func (c *MSCell) TappedSecondary(e *fyne.PointEvent) {
 		return
 	}
 
-	switch c.MarkState {
-	case MSCellMarkStatesNone:
-		c.MarkState = MSCellMarkStatesBomb
-		c.Icon.SetResource(resource.ClosebombPng)
-	case MSCellMarkStatesBomb:
-		c.MarkState = MSCellMarkStatesQuestion
-		c.Icon.SetResource(resource.ClosequestionPng)
-	case MSCellMarkStatesQuestion:
-		c.MarkState = MSCellMarkStatesNone
-		c.Icon.SetResource(resource.ClosenonePng)
+	c.SwitchMarkState()
+}
+
+func (c *MSCell) Refresh() {
+	var r *fyne.StaticResource = nil
+
+	if c.IsOpened {
+		if c.HasBomb {
+			r = resource.OpenbombPng
+		} else {
+			switch c.GetNearBombs() {
+			case 0:
+				r = resource.OpennonePng
+			case 1:
+				r = resource.Opennear1Png
+			case 2:
+				r = resource.Opennear2Png
+			case 3:
+				r = resource.Opennear3Png
+			case 4:
+				r = resource.Opennear4Png
+			case 5:
+				r = resource.Opennear5Png
+			case 6:
+				r = resource.Opennear6Png
+			case 7:
+				r = resource.Opennear7Png
+			case 8:
+				r = resource.Opennear8Png
+			}
+		}
+	} else {
+		switch c.MarkState {
+		case MSCellMarkStatesNone:
+			r = resource.ClosenonePng
+		case MSCellMarkStatesBomb:
+			r = resource.ClosebombPng
+		case MSCellMarkStatesQuestion:
+			r = resource.ClosequestionPng
+		}
 	}
+
+	c.Icon.SetResource(r)
 }
