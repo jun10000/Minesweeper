@@ -57,21 +57,38 @@ func NewMSTable(width int, height int, bombs int, seed int64, onClear func(time.
 	return c
 }
 
-func (t *MSTable) Init(exceptCell *MSCell) {
-	bombArray := utility.GetRandBinaryArrayWithSeed(t.Width * t.Height - 1, t.Bombs, t.Seed)
-	currentBombIndex := 0
-	for _, c := range *t.Cells {
-		if c == exceptCell {
-			continue
+func (t *MSTable) Init(firstCell *MSCell) {
+	// NonBomb max field size: 3x3 (9 cells)
+	nonBombCells := make([]*MSCell, 0, 9)
+	nonBombCells = append(nonBombCells, firstCell)
+	nonBombCells = append(nonBombCells, firstCell.GetNearCells()...)
+	
+	func_ContainsInNon := func(target *MSCell) bool {
+		for _, c := range nonBombCells {
+			if target == c {
+				return true
+			}
 		}
+		return false
+	}
+
+	mayBombCells := make([]*MSCell, 0, t.Width * t.Height - len(nonBombCells))
+	for _, c := range *t.Cells {
 		cell := c.(*MSCell)
-		cell.HasBomb = bombArray[currentBombIndex]
-		currentBombIndex++
+		if !func_ContainsInNon(cell) {
+			mayBombCells = append(mayBombCells, cell)
+		}
+	}
+
+	bombArray := utility.GetRandBinaryArrayWithSeed(len(mayBombCells), t.Bombs, t.Seed)
+
+	for i, c := range mayBombCells {
+		c.HasBomb = bombArray[i]
 	}
 
 	t.Status = MSTableStatesInit
 	t.InitTime = time.Now()
-	t.FirstCell = exceptCell
+	t.FirstCell = firstCell
 }
 
 //++++++++++++++++++++++++++++++

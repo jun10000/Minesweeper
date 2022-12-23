@@ -14,8 +14,11 @@ type Slider2 struct {
 func NewSlider2(min, max float64) *Slider2 {
 	s := &Slider2{}
 	s.ExtendBaseWidget(s)
+	s.Value = 0
 	s.Min = min
 	s.Max = max
+	s.Step = 1
+	s.Orientation = widget.Horizontal
 	return s
 }
 

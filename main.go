@@ -33,9 +33,9 @@ func newTitleLayout() *fyne.Container {
 	bombs_data := binding.BindFloat(&bombs)
 	seed_data := binding.BindFloat(&seed)
 
-	bombs_slider := widget2.NewSlider2WithData(2, 9998, bombs_data)
+	bombs_slider := widget2.NewSlider2WithData(2, 9990, bombs_data)
 	func_updateMaxBombs := func() {
-		max := width * height - 2
+		max := width * height - 10
 		bombs_slider.SetMax(max)
 	}
 	width_data.AddListener(binding.NewDataListener(func_updateMaxBombs))
@@ -45,12 +45,12 @@ func newTitleLayout() *fyne.Container {
 		widget.NewLabelWithStyle(TITLE, fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
 		container2.NewOneColumnMax(1,
 			widget.NewLabel("Width"),
-			widget2.NewSlider2WithData(2, 100, width_data),
+			widget2.NewSlider2WithData(4, 50, width_data),
 			widget2.NewIntEntryWithData(binding.FloatToStringWithFormat(width_data, "%.0f")),
 		),
 		container2.NewOneColumnMax(1,
 			widget.NewLabel("Height"),
-			widget2.NewSlider2WithData(2, 100, height_data),
+			widget2.NewSlider2WithData(4, 50, height_data),
 			widget2.NewIntEntryWithData(binding.FloatToStringWithFormat(height_data, "%.0f")),
 		),
 		container2.NewOneColumnMax(1,
