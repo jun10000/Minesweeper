@@ -2,7 +2,9 @@ package main
 
 import (
 	"jun10000.github.io/minesweeper/container2"
+	"jun10000.github.io/minesweeper/resource"
 	"jun10000.github.io/minesweeper/utility"
+	"jun10000.github.io/minesweeper/utility/ebitenhelper"
 	"jun10000.github.io/minesweeper/widget2"
 
 	"fmt"
@@ -20,12 +22,17 @@ var (
 	application fyne.App
 	window_main fyne.Window
 	window_result fyne.Window
+	audioplayer *ebitenhelper.AudioPlayer
 
 	width = float64(10)
 	height = float64(10)
 	bombs = float64(10)
 	seed = float64(time.Now().UnixNano())
 )
+
+func playAudio(r *fyne.StaticResource) {
+	audioplayer.Play(r.StaticName)
+}
 
 func newTitleLayout() *fyne.Container {
 	width_data := binding.BindFloat(&width)
@@ -66,6 +73,7 @@ func newTitleLayout() *fyne.Container {
 			}),
 		),
 		widget.NewButton("START", func() {
+			playAudio(resource.StartMp3)
 			window_main.SetContent(newGameLayout())
 			window_main.Resize(fyne.NewSize(0, 0))
 		}),
@@ -75,12 +83,14 @@ func newTitleLayout() *fyne.Container {
 func newGameLayout() *fyne.Container {
 	return widget2.NewMSTable(int(width), int(height), int(bombs), int64(seed),
 		func(elapsedTime time.Duration, firstPos utility.Position) {
+			playAudio(resource.ClearMp3)
 			window_result = application.NewWindow("Result")
 			window_result.SetContent(newClearLayout(elapsedTime, firstPos))
 			window_result.Resize(fyne.NewSize(300, 0))
 			window_result.Show()
 		},
 		func(elapsedTime time.Duration, firstPos utility.Position) {
+			playAudio(resource.GameoverMp3)
 			window_result = application.NewWindow("Result")
 			window_result.SetContent(newGameOverLayout(elapsedTime, firstPos))
 			window_result.Resize(fyne.NewSize(300, 0))
@@ -127,10 +137,23 @@ func newGameOverLayout(elapsedTime time.Duration, firstPos utility.Position) *fy
 }
 
 func main() {
+	audioList := []*fyne.StaticResource {
+		resource.StartMp3,
+		resource.ClearMp3,
+		resource.GameoverMp3,
+	}
+
+	audioplayer = ebitenhelper.NewAudioPlayer()
+	for _, r := range audioList {
+		audioplayer.Add(r.StaticName, r.StaticContent)
+	}
+
 	application = app.New()
 	window_main = application.NewWindow(TITLE)
 	window_main.SetContent(newTitleLayout())
 	window_main.Resize(fyne.NewSize(640, 0))
 	window_main.SetMaster()
 	window_main.ShowAndRun()
+
+	audioplayer.Close()
 }

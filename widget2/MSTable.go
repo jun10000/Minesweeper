@@ -8,46 +8,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
-	"github.com/hajimehoshi/ebiten/v2/audio"
 )
-
-//++++++++++++++++++++++++++++++
-// AudioPlayer
-//++++++++++++++++++++++++++++++
-
-type AudioPlayer struct {
-	context *audio.Context
-	players map[string]*audio.Player
-}
-
-func NewAudioPlayer() *AudioPlayer {
-	c := audio.CurrentContext()
-	if c == nil {
-		c = audio.NewContext(44100)
-	}
-
-	return &AudioPlayer {
-		context: c,
-		players: make(map[string]*audio.Player),
-	}
-}
-
-func (p *AudioPlayer) Play(r *fyne.StaticResource) {
-	player, exists := p.players[r.StaticName]
-	if !exists {
-		player = p.context.NewPlayerFromBytes(r.StaticContent)
-		p.players[r.StaticName] = player
-	}
-
-	player.Rewind()
-	player.Play()
-}
-
-func (p *AudioPlayer) Close() {
-	for _, player := range p.players {
-		player.Close()
-	}
-}
 
 //++++++++++++++++++++++++++++++
 // MSTable
@@ -69,7 +30,6 @@ type MSTable struct {
 	OnGameOver func(time.Duration, utility.Position)
 	NonOpenedCells int
 	Status MSTableStates
-	Audio *AudioPlayer
 	Cells *[]fyne.CanvasObject
 	InitTime time.Time
 	FirstCell *MSCell
@@ -85,7 +45,6 @@ func NewMSTable(width int, height int, bombs int, seed int64, onClear func(time.
 		OnGameOver: onGameOver,
 		NonOpenedCells: width * height,
 		Status: MSTableStatesNonInit,
-		Audio: NewAudioPlayer(),
 	}
 
 	c := container.New(t)
