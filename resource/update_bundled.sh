@@ -17,5 +17,6 @@ fyne bundle --append --prefix "" open_near8.png >> bundled.go
 fyne bundle --append --prefix "" open_none.png >> bundled.go
 
 fyne bundle --append --prefix "" start.mp3 >> bundled.go
+fyne bundle --append --prefix "" start2.mp3 >> bundled.go
 fyne bundle --append --prefix "" clear.mp3 >> bundled.go
 fyne bundle --append --prefix "" gameover.mp3 >> bundled.go
