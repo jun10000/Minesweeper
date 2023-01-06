@@ -35,7 +35,7 @@ type MSTable struct {
 	FirstCell *MSCell
 }
 
-func NewMSTable(width int, height int, bombs int, seed int64, onClear func(time.Duration, utility.Position), onGameOver func(time.Duration, utility.Position)) *fyne.Container {
+func NewMSTable(width int, height int, bombs int, seed int64, onClear func(time.Duration, utility.Position), onGameOver func(time.Duration, utility.Position)) (*fyne.Container, *MSTable) {
 	t := &MSTable{
 		Width: width,
 		Height: height,
@@ -53,7 +53,7 @@ func NewMSTable(width int, height int, bombs int, seed int64, onClear func(time.
 	}
 	t.Cells = &c.Objects
 
-	return c
+	return c, t
 }
 
 func (t *MSTable) Init(firstCell *MSCell) {
@@ -88,6 +88,18 @@ func (t *MSTable) Init(firstCell *MSCell) {
 	t.Status = MSTableStatesInit
 	t.InitTime = time.Now()
 	t.FirstCell = firstCell
+}
+
+func (t *MSTable) GetCellIndex(pos utility.Position) int {
+	return t.Width * pos.Y + pos.X
+}
+
+func (t *MSTable) GetCell(pos utility.Position) *MSCell {
+	return (*t.Cells)[t.GetCellIndex(pos)].(*MSCell)
+}
+
+func (t *MSTable) OpenCell(pos utility.Position) {
+	t.GetCell(pos).Open()
 }
 
 //++++++++++++++++++++++++++++++
@@ -182,10 +194,6 @@ func (c *MSCell) GetPosition() utility.Position {
 	return utility.NewPosition(c.Index % c.Parent.Width, c.Index / c.Parent.Width)
 }
 
-func (c *MSCell) GetIndex(pos utility.Position) int {
-	return c.Parent.Width * pos.Y + pos.X
-}
-
 func (c *MSCell) GetNearCells() []*MSCell {
 	pos := c.GetPosition()
 	poslist := [8]utility.Position {
@@ -205,7 +213,7 @@ func (c *MSCell) GetNearCells() []*MSCell {
 			continue
 		}
 
-		cell := (*c.Parent.Cells)[c.GetIndex(p)].(*MSCell)
+		cell := c.Parent.GetCell(p)
 		ret = append(ret, cell)
 	}
 

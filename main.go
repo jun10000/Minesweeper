@@ -87,7 +87,11 @@ func newTitleLayout() *fyne.Container {
 }
 
 func newGameLayout() *fyne.Container {
-	return widget2.NewMSTable(int(width), int(height), int(bombs), int64(seed),
+	return newGameLayoutWithFirstPosition(nil)
+}
+
+func newGameLayoutWithFirstPosition(pos *utility.Position) *fyne.Container {
+	c, t := widget2.NewMSTable(int(width), int(height), int(bombs), int64(seed),
 		func(elapsedTime time.Duration, firstPos utility.Position) {
 			playAudio(resource.ClearMp3)
 			window_result = application.NewWindow("Result")
@@ -102,6 +106,12 @@ func newGameLayout() *fyne.Container {
 			window_result.Resize(fyne.NewSize(300, 0))
 			window_result.Show()
 		})
+
+	if pos != nil {
+		t.OpenCell(*pos)
+	}
+
+	return c
 }
 
 func newClearLayout(elapsedTime time.Duration, firstPos utility.Position) *fyne.Container {
@@ -135,7 +145,7 @@ func newGameOverLayout(elapsedTime time.Duration, firstPos utility.Position) *fy
 		container.NewGridWithColumns(2,
 			widget.NewButton("Retry", func() {
 				playAudio(resource.Start2Mp3)
-				window_main.SetContent(newGameLayout())
+				window_main.SetContent(newGameLayoutWithFirstPosition(&firstPos))
 				window_main.Resize(fyne.NewSize(0, 0))
 				window_result.Close()
 			}),
