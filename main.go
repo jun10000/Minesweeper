@@ -8,6 +8,7 @@ import (
 	"jun10000.github.io/minesweeper/widget2"
 
 	"fmt"
+	"net/url"
 	"time"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -16,7 +17,10 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-const TITLE = "Minesweeper"
+const (
+	TITLE = "Minesweeper"
+	URL_README = "https://github.com/jun10000/Minesweeper/blob/main/README.md"
+)
 
 var (
 	application fyne.App
@@ -39,6 +43,8 @@ func playAudio(r *fyne.StaticResource) {
 }
 
 func newTitleLayout() *fyne.Container {
+	u, _ := url.Parse(URL_README)
+
 	seed = newSeed()
 	
 	width_data := binding.BindFloat(&width)
@@ -83,6 +89,9 @@ func newTitleLayout() *fyne.Container {
 			window_main.SetContent(newGameLayout())
 			window_main.Resize(fyne.NewSize(0, 0))
 		}),
+		container.NewHBox(
+			widget.NewHyperlink("Developed by jun10000", u),
+		),
 	)
 }
 
