@@ -1,6 +1,14 @@
 # Minesweeper
 
-Now making...
+The game to opening cells avoiding bombs!  
+Width, Height, Bombs count, and seed value can be set.  
+
+![screenshot](screenshot.png)  
+
+## How to operate
+
+Left click (Tap): Open cell (if the cell has no cell marker)  
+Right click (Hold): Switch cell marker  
 
 ## Go package providers
 
