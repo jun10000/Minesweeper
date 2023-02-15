@@ -19,6 +19,7 @@ const (
 	MSTableStatesNonInit MSTableStates = iota
 	MSTableStatesInit
 	MSTableStatesClear
+	MSTableStatesGameOver
 )
 
 type MSTable struct {
@@ -62,7 +63,7 @@ func (t *MSTable) Init(firstCell *MSCell) {
 	nonBombCells = append(nonBombCells, firstCell)
 	nonBombCells = append(nonBombCells, firstCell.GetNearCells()...)
 	
-	func_ContainsInNon := func(target *MSCell) bool {
+	func_ContainsInNonBombCells := func(target *MSCell) bool {
 		for _, c := range nonBombCells {
 			if target == c {
 				return true
@@ -74,7 +75,7 @@ func (t *MSTable) Init(firstCell *MSCell) {
 	mayBombCells := make([]*MSCell, 0, t.Width * t.Height - len(nonBombCells))
 	for _, c := range *t.Cells {
 		cell := c.(*MSCell)
-		if !func_ContainsInNon(cell) {
+		if !func_ContainsInNonBombCells(cell) {
 			mayBombCells = append(mayBombCells, cell)
 		}
 	}
@@ -147,14 +148,18 @@ func (t *MSTable) OnCellOpen(c *MSCell) {
 	t.NonOpenedCells--
 
 	if c.HasBomb {
-		t.Status = MSTableStatesClear
-		t.OnGameOver(time.Now().Sub(t.InitTime), t.FirstCell.GetPosition())
+		t.Status = MSTableStatesGameOver
+		if t.OnGameOver != nil {
+			t.OnGameOver(time.Now().Sub(t.InitTime), t.FirstCell.GetPosition())
+		}
 		return
 	}
 
 	if t.NonOpenedCells <= t.Bombs {
 		t.Status = MSTableStatesClear
-		t.OnClear(time.Now().Sub(t.InitTime), t.FirstCell.GetPosition())
+		if t.OnClear != nil {
+			t.OnClear(time.Now().Sub(t.InitTime), t.FirstCell.GetPosition())
+		}
 		return
 	}
 }
@@ -233,7 +238,7 @@ func (c *MSCell) GetNearBombs() int {
 }
 
 func (c *MSCell) Open() {
-	if c.IsOpened || c.Parent.Status == MSTableStatesClear {
+	if c.IsOpened || c.Parent.Status == MSTableStatesClear || c.Parent.Status == MSTableStatesGameOver {
 		return
 	}
 
@@ -279,7 +284,7 @@ func (c *MSCell) Tapped(e *fyne.PointEvent) {
 }
 
 func (c *MSCell) TappedSecondary(e *fyne.PointEvent) {
-	if c.IsOpened || c.Parent.Status == MSTableStatesClear {
+	if c.IsOpened || c.Parent.Status == MSTableStatesClear || c.Parent.Status == MSTableStatesGameOver {
 		return
 	}
 
